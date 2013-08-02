@@ -50,6 +50,16 @@ static int db_closed (lua_State *L) {
 }
 
 
+static int db_tostring (lua_State *L) {
+  Dbase *db = toDbase(L);
+  const char *address = "closed";
+  if (!isClosed(db))
+    address = lua_pushfstring(L, "%p", db->db);
+  lua_pushfstring(L, "sqlite3 database (%s)", address);
+  return 1;
+}
+
+
 static int dblite_openname (lua_State *L, const char *name) {
   Dbase *db = lua_newuserdata(L, sizeof *db);
   int rc = sqlite3_open(name, &db->db);
@@ -91,6 +101,7 @@ static const luaL_Reg dblite[] = {
 
 static const luaL_Reg db_meta[] = {
   {"__gc", db_close},
+  {"__tostring", db_tostring},
   {"close", db_close},
   {"closed", db_closed},
   {NULL, NULL}
