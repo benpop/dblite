@@ -1,4 +1,4 @@
-SHELL = sh
+SHELL = /bin/sh
 
 UNAME = $(shell uname | tr '[:upper:]' '[:lower:]')
 
