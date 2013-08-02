@@ -8,8 +8,8 @@
 #define is_numeric(t)   ((t) == DBLITE_BOTH || (t) == DBLITE_NUMERIC)
 #define is_named(t)     ((t) == DBLITE_BOTH || (t) == DBLITE_NAMED)
 
-typedef struct Db {
+typedef struct Dbase {
   struct sqlite3 *db;
-} Db;
+} Dbase;
 
 #endif
