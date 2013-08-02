@@ -28,6 +28,7 @@ LIBS = -L$(SQLITEDIR)/lib -lsqlite3
 
 N = dblite
 C = $N.c
+H = $N.h
 O = $N.o
 T = $N.so
 
