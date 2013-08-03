@@ -30,7 +30,7 @@ static Dbase *checkDbase (lua_State *L) {
 
 
 static int error_from_code (lua_State *L, int code) {
-  return luaL_error(L, sqlite3_errstr(code));
+  return luaL_error(L, "(%d) %s", code, sqlite3_errstr(code));
 }
 
 
@@ -81,7 +81,7 @@ static int db_tostring (lua_State *L) {
 }
 
 
-/* == DB EXECUTE ======================================== */
+/* == DB EXECUTE SQL ==================================== */
 
 
 static int callable (lua_State *L, int index) {
@@ -183,6 +183,8 @@ static int dblite_openname (lua_State *L, const char *name) {
   /* save name */
   lua_pushstring(L, name);
   lua_rawsetp(L, LUA_REGISTRYINDEX, db);
+  /* turn on extended result codes */
+  sqlite3_extended_result_codes(db->db, 1);
   return 1;
 }
 
