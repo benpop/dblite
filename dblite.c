@@ -18,9 +18,15 @@
 #define isClosed(ddb) ((ddb)->db == NULL)
 
 
+/* ====================================================== */
+
+
 static int error_from_code (lua_State *L, int code) {
   return luaL_error(L, sqlite3_errstr(code));
 }
+
+
+/* ====================================================== */
 
 
 static Dbase *checkDbase (lua_State *L) {
@@ -69,6 +75,9 @@ static int db_tostring (lua_State *L) {
 }
 
 
+/* ====================================================== */
+
+
 static int dblite_openname (lua_State *L, const char *name) {
   Dbase *db = lua_newuserdata(L, sizeof *db);
   int rc = sqlite3_open(name, &db->db);
@@ -101,6 +110,9 @@ static int dblite_call (lua_State *L) {
   lua_call(L, 1, 1);
   return 1;
 }
+
+
+/* ====================================================== */
 
 
 static const luaL_Reg dblite[] = {
