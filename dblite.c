@@ -310,11 +310,18 @@ static const luaL_Reg stmt_meta[] = {
 };
 
 
-int luaopen_dblite (lua_State *L) {
-  luaL_newmetatable(L, DB_META);
-  luaL_setfuncs(L, db_meta, 0);
+static void push_metatable (lua_State *L, const char *tname,
+                            const luaL_Reg *funcs) {
+  luaL_newmetatable(L, tname);
+  luaL_setfuncs(L, funcs, 0);
   lua_pushvalue(L, -1);  /* copy metatable... */
   lua_setfield(L, -2, "__index");  /* ...and set it as its own index */
+}
+
+
+int luaopen_dblite (lua_State *L) {
+  push_metatable(L, DB_META, db_meta);
+  push_metatable(L, STMT_META, stmt_meta);
   luaL_newlib(L, dblite);
   lua_pushvalue(L, -1);  /* copy lib... */
   lua_setmetatable(L, -2);  /* ...and set it as its own metatable */
