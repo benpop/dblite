@@ -11,11 +11,6 @@
 #define MEMORY ":memory:"
 
 
-#define toDbase(L) luaL_checkudata(L, 1, DB_META)
-
-#define isClosed(ddb) ((ddb)->db == NULL)
-
-
 typedef struct Dbase {
   sqlite3 *db;
 } Dbase;
@@ -24,14 +19,6 @@ typedef struct Dbase {
 typedef struct Stmt {
   sqlite3_stmt *stmt;
 } Stmt;
-
-
-static Dbase *checkDbase (lua_State *L) {
-  Dbase *db = toDbase(L);
-  if (isClosed(db))
-    luaL_error(L, "operation on closed database");
-  return db;
-}
 
 
 /* ====================================================== */
@@ -43,6 +30,19 @@ static int error_from_code (lua_State *L, int code) {
 
 
 /* ====================================================== */
+
+
+#define toDbase(L) luaL_checkudata(L, 1, DB_META)
+
+#define isClosed(ddb) ((ddb)->db == NULL)
+
+
+static Dbase *checkDbase (lua_State *L) {
+  Dbase *db = toDbase(L);
+  if (isClosed(db))
+    luaL_error(L, "operation on closed database");
+  return db;
+}
 
 
 #define db_gc db_close
