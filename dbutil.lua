@@ -41,9 +41,25 @@ function inserter (t,incl_names)
 end
 
 
-return {
-  E = E,
-  I = I,
-  notnumber = notnumber,
-  inserter = inserter,
-}
+function cattab (t)
+  local res = {}
+  for k,v in pairs(t) do
+    table.insert(res, tostring(k).."="..tostring(v))
+  end
+  return "{"..table.concat(res,", ").."}"
+end
+
+
+function printv (...)
+  local n, res = select("#", ...), {}
+  for i=1,n do
+    local v, r = select(i, ...)
+    if type(v) == "table" then
+      r = cattab(v)
+    else
+      r = tostring(v)
+    end
+    table.insert(res, r)
+  end
+  print(table.unpack(res))
+end
