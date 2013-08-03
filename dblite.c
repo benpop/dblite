@@ -81,6 +81,94 @@ static int db_tostring (lua_State *L) {
 }
 
 
+/* == DB EXECUTE ======================================== */
+
+
+static int callable (lua_State *L, int index) {
+  switch (lua_type(L, index)) {
+    case LUA_TFUNCTION: return 1;
+    case LUA_TTABLE:  case LUA_TUSERDATA: {
+      if (luaL_getmetafield(L, index, "__call")) {
+        lua_pop(L, 1);
+        return 1;
+      }
+      /* fall-through */
+    }
+    default: return 0;
+  }
+}
+
+
+#define checkcallable(L,i) do {                       \
+    luaL_argcheck(L, (i), callable(L, (i)),           \
+      lua_pushfstring(L, "callable expected, got %s", \
+        luaL_typename(L, (i))));                      \
+  } while (0)
+
+
+static void build_row (lua_State *L, int rowidx, int n, char **cols) {
+  int i;
+  lua_createtable(L, n, 0);
+  lua_replace(L, rowidx);
+  for (i = 0; i < n; i++) {
+    lua_pushstring(L, cols[i]);
+    lua_rawseti(L, rowidx, i + 1);
+  }
+}
+
+
+/*
+** Stack slots:
+** 3: callback
+** 4: user value
+** 5: # of columns
+** 6: column data
+** 7: column names
+*/
+static int db_exec_callback (void *p, int n, char **coldata, char **colnames) {
+  lua_State *L = p;
+  int rc;
+  if (!lua_isnumber(L, 5)) {  /* # of columns */
+    lua_pushinteger(L, n);
+    lua_replace(L, 5);
+  }
+  build_row(L, 6, n, coldata);  /* column data - refresh for each row */
+  if (!lua_istable(L, 7))  /* column names */
+    build_row(L, 7, n, colnames);
+  lua_pushvalue(L, 3);  /* callback */
+  lua_pushvalue(L, 4);  /* user value */
+  lua_pushvalue(L, 5);  /* # of columns */
+  lua_pushvalue(L, 6);  /* column data */
+  lua_pushvalue(L, 7);  /* column names */
+  rc = lua_pcall(L, 4, 0, 0);
+  return rc == LUA_OK ? SQLITE_OK : SQLITE_ABORT;
+}
+
+
+/*
+** db:execute(sql [, callback [, user value]])
+**
+** callback(user value, n, data, names)
+** n: number of columns
+** data: column data
+** names: column names (static throughout calls)
+*/
+static int db_exec (lua_State *L) {
+  Dbase *db = checkDbase(L);
+  const char *sql = luaL_checkstring(L, 2);
+  int rc;
+  if (!lua_isnoneornil(L, 3)) {
+    checkcallable(L, 3);
+    lua_settop(L, 4);  /* truncate excess values */
+    lua_settop(L, 7);  /* expand for callback sub-stack */
+    rc = sqlite3_exec(db->db, sql, db_exec_callback, L, NULL);
+  }
+  else
+    rc = sqlite3_exec(db->db, sql, NULL, NULL, NULL);
+  return rc == SQLITE_OK ? 0 : error_from_code(L, rc);
+}
+
+
 /* ====================================================== */
 
 
@@ -135,6 +223,7 @@ static const luaL_Reg db_meta[] = {
   {"close", db_close},
   {"isclosed", db_isclosed},
   {"name", db_name},
+  {"execute", db_exec},
   {NULL, NULL}
 };
 
