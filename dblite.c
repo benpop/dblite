@@ -50,7 +50,7 @@ static int db_close (lua_State *L) {
 }
 
 
-static int db_closed (lua_State *L) {
+static int db_isclosed (lua_State *L) {
   Dbase *db = toDbase(L);
   lua_pushboolean(L, isClosed(db));
   return 1;
@@ -126,7 +126,7 @@ static const luaL_Reg db_meta[] = {
   {"__gc", db_gc},
   {"__tostring", db_tostring},
   {"close", db_close},
-  {"closed", db_closed},
+  {"isclosed", db_isclosed},
   {NULL, NULL}
 };
 
