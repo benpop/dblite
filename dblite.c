@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "lua.h"
 #include "lauxlib.h"
 
@@ -53,9 +55,16 @@ static int db_closed (lua_State *L) {
 static int db_tostring (lua_State *L) {
   Dbase *db = toDbase(L);
   const char *address = "closed";
+  const char *name;
+  lua_rawgetp(L, LUA_REGISTRYINDEX, db);  /* get name */
+  name = lua_tostring(L, -1);
+  if (strcmp(name, MEMORY) == 0)
+    name = "<in-memory>";
+  else
+    name = lua_pushfstring(L, "\"%s\"", name);
   if (!isClosed(db))
     address = lua_pushfstring(L, "%p", db->db);
-  lua_pushfstring(L, "sqlite3 database (%s)", address);
+  lua_pushfstring(L, "sqlite3 database %s (%s)", name, address);
   return 1;
 }
 
@@ -68,6 +77,9 @@ static int dblite_openname (lua_State *L, const char *name) {
     return error_from_code(L, rc);
   }
   luaL_setmetatable(L, DBTYPE);
+  /* save name */
+  lua_pushstring(L, name);
+  lua_rawsetp(L, LUA_REGISTRYINDEX, db);
   return 1;
 }
 
