@@ -179,6 +179,21 @@ static int db_exec (lua_State *L) {
 }
 
 
+/* == DB PREPARE STATEMENT ============================== */
+
+
+static int db_prepare (lua_State *L) {
+  Dbase *db = checkDbase(L);
+  size_t nsql;
+  const char *sql = luaL_checklstring(L, 2, &nsql);
+  const char *tail;
+  Stmt *stmt = lua_newuserdata(L, sizeof *stmt);
+  int rc = sqlite3_prepare_v2(db->db, sql, (int)nsql, &stmt->stmt, &tail);
+  if (rc != SQLITE_OK) return error_from_code(L, rc);
+  /* TODO */
+}
+
+
 /* ====================================================== */
 
 
@@ -236,6 +251,7 @@ static const luaL_Reg db_meta[] = {
   {"isclosed", db_isclosed},
   {"name", db_name},
   {"execute", db_exec},
+  {"prepare", db_prepare},
   {NULL, NULL}
 };
 
