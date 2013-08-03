@@ -40,6 +40,8 @@ static int error_from_code (lua_State *L, int code) {
 
 static int stmt_gc (lua_State *L) {
   Stmt *stmt = toStmt(L);
+  lua_pushnil(L);
+  lua_rawsetp(L, LUA_REGISTRYINDEX, stmt);  /* remove reference to DB */
   if (!isFinalized(stmt)) {
     sqlite3_stmt *sstmt = stmt->stmt;
     stmt->stmt = NULL;
@@ -223,6 +225,8 @@ static int db_prepare (lua_State *L) {
   int rc = sqlite3_prepare_v2(db->db, sql, (int)nsql, &stmt->stmt, &tail);
   if (rc != SQLITE_OK) return error_from_code(L, rc);
   luaL_setmetatable(L, STMT_META);
+  lua_pushvalue(L, 1);  /* copy DB */
+  lua_rawsetp(L, LUA_REGISTRYINDEX, stmt);  /* save DB under address */
   /* TODO */
 }
 
