@@ -18,6 +18,14 @@
 #define isClosed(ddb) ((ddb)->db == NULL)
 
 
+static Dbase *checkDbase (lua_State *L) {
+  Dbase *db = toDbase(L);
+  if (isClosed(db))
+    luaL_error(L, "operation on closed database");
+  return db;
+}
+
+
 /* ====================================================== */
 
 
@@ -27,14 +35,6 @@ static int error_from_code (lua_State *L, int code) {
 
 
 /* ====================================================== */
-
-
-static Dbase *checkDbase (lua_State *L) {
-  Dbase *db = toDbase(L);
-  if (isClosed(db))
-    luaL_error(L, "operation on closed database");
-  return db;
-}
 
 
 /*
