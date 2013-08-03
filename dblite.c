@@ -237,7 +237,11 @@ static int db_prepare (lua_State *L) {
   luaL_setmetatable(L, STMT_META);
   lua_pushvalue(L, 1);  /* copy DB */
   lua_rawsetp(L, LUA_REGISTRYINDEX, stmt);  /* save DB under address */
-  return 1;  /* TODO */
+  if (tail > sql + nsql) {
+    lua_pushstring(L, tail);
+    return 2;
+  }
+  return 1;
 }
 
 
