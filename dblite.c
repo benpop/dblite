@@ -5,8 +5,6 @@
 
 #include "sqlite3.h"
 
-#include "dblite.h"
-
 
 #define DB_META "DBLITE::DB"
 
@@ -16,6 +14,16 @@
 #define toDbase(L) luaL_checkudata(L, 1, DB_META)
 
 #define isClosed(ddb) ((ddb)->db == NULL)
+
+
+typedef struct Dbase {
+  sqlite3 *db;
+} Dbase;
+
+
+typedef struct Stmt {
+  sqlite3_stmt *stmt;
+} Stmt;
 
 
 static Dbase *checkDbase (lua_State *L) {
