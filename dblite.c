@@ -99,10 +99,12 @@ static int callable (lua_State *L, int index) {
 }
 
 
-#define checkcallable(L,i) do {                       \
-    luaL_argcheck(L, (i), callable(L, (i)),           \
-      lua_pushfstring(L, "callable expected, got %s", \
-        luaL_typename(L, (i))));                      \
+#define checkcallable(L,i) do {                         \
+    if (!callable(L, (i))) {                            \
+      luaL_argerror(L, (i),                             \
+        lua_pushfstring(L, "callable expected, got %s", \
+          luaL_typename(L, (i))));                      \
+    }                                                   \
   } while (0)
 
 
