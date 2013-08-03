@@ -57,6 +57,13 @@ static int db_isclosed (lua_State *L) {
 }
 
 
+static int db_name (lua_State *L) {
+  Dbase *db = toDbase(L);
+  lua_rawgetp(L, LUA_REGISTRYINDEX, db);
+  return 1;
+}
+
+
 static int db_tostring (lua_State *L) {
   Dbase *db = toDbase(L);
   const char *address = "closed";
@@ -127,6 +134,7 @@ static const luaL_Reg db_meta[] = {
   {"__tostring", db_tostring},
   {"close", db_close},
   {"isclosed", db_isclosed},
+  {"name", db_name},
   {NULL, NULL}
 };
 
