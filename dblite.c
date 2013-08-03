@@ -7,6 +7,7 @@
 
 
 #define DB_META "DBLITE::DB"
+#define STMT_META "DBLITE::STMT"
 
 #define MEMORY ":memory:"
 
@@ -86,6 +87,25 @@ static int db_tostring (lua_State *L) {
     address = lua_pushfstring(L, "%p", db->db);
   lua_pushfstring(L, "sqlite3 database %s (%s)", name, address);
   return 1;
+}
+
+
+/* ====================================================== */
+
+
+#define toStmt(L) luaL_checkudata(L, 1, STMT_META)
+
+#define isFinalized(sstmt) ((sstmt)->stmt == NULL)
+
+
+static int stmt_gc (lua_State *L) {
+  Stmt *stmt = toStmt(L);
+  if (!isFinalized(stmt)) {
+    sqlite3_stmt *sstmt = stmt->stmt;
+    stmt->stmt = NULL;
+    sqlite3_finalize(sstmt);
+  }
+  return 0;
 }
 
 
@@ -252,6 +272,12 @@ static const luaL_Reg db_meta[] = {
   {"name", db_name},
   {"execute", db_exec},
   {"prepare", db_prepare},
+  {NULL, NULL}
+};
+
+
+static const luaL_Reg stmt_meta[] = {
+  {"__gc", stmt_gc},
   {NULL, NULL}
 };
 
