@@ -8,12 +8,12 @@
 #include "dblite.h"
 
 
-#define DBTYPE "DBLITE::DB"
+#define DB_META "DBLITE::DB"
 
 #define MEMORY ":memory:"
 
 
-#define toDbase(L) luaL_checkudata(L, 1, DBTYPE)
+#define toDbase(L) luaL_checkudata(L, 1, DB_META)
 
 #define isClosed(ddb) ((ddb)->db == NULL)
 
@@ -91,7 +91,7 @@ static int dblite_openname (lua_State *L, const char *name) {
     sqlite3_close(db->db);
     return error_from_code(L, rc);
   }
-  luaL_setmetatable(L, DBTYPE);
+  luaL_setmetatable(L, DB_META);
   /* save name */
   lua_pushstring(L, name);
   lua_rawsetp(L, LUA_REGISTRYINDEX, db);
@@ -140,7 +140,7 @@ static const luaL_Reg db_meta[] = {
 
 
 int luaopen_dblite (lua_State *L) {
-  luaL_newmetatable(L, DBTYPE);
+  luaL_newmetatable(L, DB_META);
   luaL_setfuncs(L, db_meta, 0);
   lua_pushvalue(L, -1);  /* copy metatable... */
   lua_setfield(L, -2, "__index");  /* ...and set it as its own index */
