@@ -33,6 +33,25 @@ static int error_from_code (lua_State *L, int code) {
 /* ====================================================== */
 
 
+#define toStmt(L) luaL_checkudata(L, 1, STMT_META)
+
+#define isFinalized(sstmt) ((sstmt)->stmt == NULL)
+
+
+static int stmt_gc (lua_State *L) {
+  Stmt *stmt = toStmt(L);
+  if (!isFinalized(stmt)) {
+    sqlite3_stmt *sstmt = stmt->stmt;
+    stmt->stmt = NULL;
+    sqlite3_finalize(sstmt);
+  }
+  return 0;
+}
+
+
+/* ====================================================== */
+
+
 #define toDbase(L) luaL_checkudata(L, 1, DB_META)
 
 #define isClosed(ddb) ((ddb)->db == NULL)
@@ -87,25 +106,6 @@ static int db_tostring (lua_State *L) {
     address = lua_pushfstring(L, "%p", db->db);
   lua_pushfstring(L, "sqlite3 database %s (%s)", name, address);
   return 1;
-}
-
-
-/* ====================================================== */
-
-
-#define toStmt(L) luaL_checkudata(L, 1, STMT_META)
-
-#define isFinalized(sstmt) ((sstmt)->stmt == NULL)
-
-
-static int stmt_gc (lua_State *L) {
-  Stmt *stmt = toStmt(L);
-  if (!isFinalized(stmt)) {
-    sqlite3_stmt *sstmt = stmt->stmt;
-    stmt->stmt = NULL;
-    sqlite3_finalize(sstmt);
-  }
-  return 0;
 }
 
 
@@ -210,6 +210,7 @@ static int db_prepare (lua_State *L) {
   Stmt *stmt = lua_newuserdata(L, sizeof *stmt);
   int rc = sqlite3_prepare_v2(db->db, sql, (int)nsql, &stmt->stmt, &tail);
   if (rc != SQLITE_OK) return error_from_code(L, rc);
+  luaL_setmetatable(L, STMT_META);
   /* TODO */
 }
 
