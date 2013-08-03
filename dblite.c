@@ -65,15 +65,27 @@ static Dbase *checkDbase (lua_State *L) {
 }
 
 
-#define db_gc db_close
-
-static int db_close (lua_State *L) {
-  Dbase *db = toDbase(L);
+static void db_close_aux (Dbase *db) {
   if (!isClosed(db)) {
     sqlite3 *sdb = db->db;
     db->db = NULL;
     sqlite3_close_v2(sdb);
   }
+}
+
+
+static int db_close (lua_State *L) {
+  Dbase *db = toDbase(L);
+  db_close_aux(db);
+  return 0;
+}
+
+
+static int db_gc (lua_State *L) {
+  Dbase *db = toDbase(L);
+  lua_pushnil(L);
+  lua_rawsetp(L, LUA_REGISTRYINDEX, db);  /* remove reference to name */
+  db_close_aux(db);
   return 0;
 }
 
