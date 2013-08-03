@@ -23,7 +23,7 @@ static int error_from_code (lua_State *L, int code) {
 }
 
 
-static Dbase *checkDb (lua_State *L) {
+static Dbase *checkDbase (lua_State *L) {
   Dbase *db = toDbase(L);
   if (isClosed(db))
     luaL_error(L, "operation on closed database");
