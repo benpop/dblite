@@ -37,9 +37,8 @@ static int error_from_code (lua_State *L, int code) {
 /* ====================================================== */
 
 
-/*
-** ALSO db_gc
-*/
+#define db_gc db_close
+
 static int db_close (lua_State *L) {
   Dbase *db = toDbase(L);
   if (!isClosed(db)) {
@@ -124,7 +123,7 @@ static const luaL_Reg dblite[] = {
 
 
 static const luaL_Reg db_meta[] = {
-  {"__gc", db_close},
+  {"__gc", db_gc},
   {"__tostring", db_tostring},
   {"close", db_close},
   {"closed", db_closed},
