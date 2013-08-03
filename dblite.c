@@ -51,6 +51,16 @@ static int stmt_gc (lua_State *L) {
 }
 
 
+static int stmt_tostring (lua_State *L) {
+  Stmt *stmt = toStmt(L);
+  if (isFinalized(stmt))
+    lua_pushliteral(L, "sqlite3 statement (closed)");
+  else
+    lua_pushfstring(L, "sqlite3 statement (%p)", stmt);
+  return 1;
+}
+
+
 /* ====================================================== */
 
 
@@ -227,7 +237,7 @@ static int db_prepare (lua_State *L) {
   luaL_setmetatable(L, STMT_META);
   lua_pushvalue(L, 1);  /* copy DB */
   lua_rawsetp(L, LUA_REGISTRYINDEX, stmt);  /* save DB under address */
-  /* TODO */
+  return 1;  /* TODO */
 }
 
 
@@ -295,6 +305,7 @@ static const luaL_Reg db_meta[] = {
 
 static const luaL_Reg stmt_meta[] = {
   {"__gc", stmt_gc},
+  {"__tostring", stmt_tostring},
   {NULL, NULL}
 };
 
