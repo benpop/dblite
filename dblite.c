@@ -39,6 +39,14 @@ static int error_from_code (lua_State *L, int code) {
 #define isFinalized(sstmt) ((sstmt)->stmt == NULL)
 
 
+static Stmt *checkStmt (lua_State *L) {
+  Stmt *stmt = toStmt(L);
+  if (isFinalized(stmt))
+    luaL_error(L, "operation on finalized statement");
+  return stmt;
+}
+
+
 static int stmt_gc (lua_State *L) {
   Stmt *stmt = toStmt(L);
   lua_pushnil(L);
