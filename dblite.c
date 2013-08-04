@@ -70,6 +70,13 @@ static int stmt_tostring (lua_State *L) {
 }
 
 
+static int stmt_sql (lua_State *L) {
+  Stmt *stmt = checkStmt(L);
+  lua_pushstring(L, sqlite3_sql(stmt->stmt));
+  return 1;
+}
+
+
 /* ====================================================== */
 
 
@@ -316,6 +323,7 @@ static const luaL_Reg db_meta[] = {
 static const luaL_Reg stmt_meta[] = {
   {"__gc", stmt_gc},
   {"__tostring", stmt_tostring},
+  {"sql", stmt_sql},
   {NULL, NULL}
 };
 
