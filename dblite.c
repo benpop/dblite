@@ -178,7 +178,6 @@ static void build_row (lua_State *L, int rowidx, int n, char **cols) {
 */
 static int db_exec_callback (void *p, int n, char **coldata, char **colnames) {
   lua_State *L = p;
-  int rc;
   if (!lua_isnumber(L, 5)) {  /* # of columns */
     lua_pushinteger(L, n);
     lua_replace(L, 5);
@@ -191,8 +190,7 @@ static int db_exec_callback (void *p, int n, char **coldata, char **colnames) {
   lua_pushvalue(L, 5);  /* # of columns */
   lua_pushvalue(L, 6);  /* column data */
   lua_pushvalue(L, 7);  /* column names */
-  rc = lua_pcall(L, 4, 0, 0);
-  return rc == LUA_OK ? SQLITE_OK : SQLITE_ABORT;
+  return lua_pcall(L, 4, 0, 0) == LUA_OK ? SQLITE_OK : SQLITE_ABORT;
 }
 
 
