@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <string.h>
 
 #include "lua.h"
@@ -238,8 +239,11 @@ static int db_prepare (lua_State *L) {
   lua_pushvalue(L, 1);  /* copy DB */
   lua_rawsetp(L, LUA_REGISTRYINDEX, stmt);  /* save DB under address */
   if (tail < sql + nsql) {
-    lua_pushstring(L, tail);
-    return 2;
+    while (isspace(*tail)) tail++;
+    if (*tail) {
+      lua_pushstring(L, tail);
+      return 2;
+    }
   }
   return 1;
 }
