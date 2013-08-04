@@ -123,13 +123,9 @@ static int db_tostring (lua_State *L) {
   const char *name;
   lua_rawgetp(L, LUA_REGISTRYINDEX, db);  /* get name */
   name = lua_tostring(L, -1);
-  if (strcmp(name, MEMORY) == 0)
-    name = "<in-memory>";
-  else
-    name = lua_pushfstring(L, "\"%s\"", name);
   if (!isClosed(db))
     address = lua_pushfstring(L, "%p", db->db);
-  lua_pushfstring(L, "sqlite3 database %s (%s)", name, address);
+  lua_pushfstring(L, "sqlite3 database \"%s\" (%s)", name, address);
   return 1;
 }
 
