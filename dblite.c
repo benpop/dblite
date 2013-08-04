@@ -247,8 +247,8 @@ static int db_prepare (lua_State *L) {
   luaL_setmetatable(L, STMT_META);
   lua_pushvalue(L, 1);  /* copy DB */
   lua_rawsetp(L, LUA_REGISTRYINDEX, stmt);  /* save DB under address */
-  if (tail < sql + nsql) {
-    while (isspace(*tail)) tail++;
+  if (tail < sql + nsql) {  /* unread statements remaining */
+    while (isspace(*tail)) tail++;  /* trim leading space */
     if (*tail) {
       lua_pushstring(L, tail);
       return 2;
