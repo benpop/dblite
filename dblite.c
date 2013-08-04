@@ -297,13 +297,28 @@ static int dblite_call (lua_State *L) {
 }
 
 
+static int dblite_complete (lua_State *L) {
+  const char *sql = luaL_checkstring(L, 1);
+  lua_pushboolean(L, sqlite3_complete(sql));
+  return 1;
+}
+
+
+static int dblite_version (lua_State *L) {
+  lua_pushstring(L, sqlite3_libversion());
+  return 1;
+}
+
+
 /* ====================================================== */
 
 
 static const luaL_Reg dblite[] = {
+  {"__call", dblite_call},
   {"open", dblite_open},
   {"open_memory", dblite_openmemory},
-  {"__call", dblite_call},
+  {"complete", dblite_complete},
+  {"version", dblite_version},
   {NULL, NULL}
 };
 
